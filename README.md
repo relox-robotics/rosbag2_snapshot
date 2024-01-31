@@ -23,6 +23,8 @@ Buffer recent messages until triggered to write or trigger an already running in
     default_duration_limit: 10.0           # [Optional, default=-1] Maximum time difference between newest and oldest message in seconds
     default_memory_limit: 64.0             # [Optional, default=-1] Maximum memory used by messages in each topic's buffer, in MB
     topics: ["/topic1", "/topic2"]         # [Optional] List of topics to buffer. If empty, buffer all topics.
+    blacklist_topics: ["/topic1"]               # [Optional] Only used if topics=[]
+    blacklist_types: ["sensor_msgs/msg/Image"]  # [Optional] Only used if topics=[]
     topic_details:
       /topic1:
         type: "sensor_msgs/msg/NavSatFix"  # [Required if topic is specified] Topic type

@@ -43,6 +43,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <set>
 
 namespace rosbag2_snapshot
 {
@@ -109,6 +110,7 @@ struct SnapshotterTopicOptions
   rclcpp::Duration duration_limit_;
   // Maximum memory usage of the buffer before older messages are removed
   int32_t memory_limit_;
+  rclcpp::QoS qos_;
 
   SnapshotterTopicOptions(
     rclcpp::Duration duration_limit = INHERIT_DURATION_LIMIT,
@@ -130,6 +132,10 @@ struct SnapshotterOptions
   typedef std::map<TopicDetails, SnapshotterTopicOptions> topics_t;
   // Provides list of topics to snapshot and their limit configurations
   topics_t topics_;
+
+  std::set<std::string> blacklist_topics_;
+
+  std::set<std::string> blacklist_types_;
 
   SnapshotterOptions(
     rclcpp::Duration default_duration_limit = rclcpp::Duration(30s),
@@ -193,7 +199,7 @@ public:
   typedef std::pair<queue_t::const_iterator, queue_t::const_iterator> range_t;
   // Get a begin and end iterator into the buffer respecting the start and
   // end timestamp constraints
-  range_t rangeFromTimes(const rclcpp::Time & start, const rclcpp::Time & end);
+  range_t rangeFromTimes(const rclcpp::Time & now, const rclcpp::Time & start, const rclcpp::Time & end);
 
   // Return the total message size including the meta-information
   int64_t getMessageSize(SnapshotMessage const & msg) const;
@@ -253,6 +259,7 @@ private:
   // Subscribe to one of the topics, setting up the callback to add to the respective queue
   void subscribe(
     const TopicDetails & topic_details,
+    const SnapshotterTopicOptions & topic_options,
     std::shared_ptr<MessageQueue> queue);
   // Called on new message from any configured topic. Adds to queue for that topic
   void topicCb(
